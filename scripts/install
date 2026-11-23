@@ -16,6 +16,7 @@ ynh_script_progression "Setting up source files..."
 ynh_setup_source --dest_dir="$install_dir"
 
 chmod +x "$install_dir/mtg"
+chown "$app:$app" "$install_dir/mtg"
 
 #=================================================
 # GENERATE/VALIDATE SECRET
@@ -38,34 +39,40 @@ ynh_app_setting_set --key=mtg_secret --value="$mtg_secret"
 #=================================================
 
 mkdir -p "$conf_dir"
+chown "$app:$app" "$conf_dir"
 
 # Create log directory
-mkdir -p /var/log/$app
-chown -R "$app:www-data" "/var/log/$app"
+mkdir -p "/var/log/$app"
+chown -R "$app:$app" "/var/log/$app"
 
 [ "$prometheus" = "1" ] && prom_enabled="true" || prom_enabled="false"
 
 ynh_config_add --template="mtg.toml" --destination="$conf_dir/mtg.toml"
+chmod 400 "$conf_dir/mtg.toml"
+chown "$app:$app" "$conf_dir/mtg.toml"
 
 #=================================================
 # SYSTEMD + SERVICE REGISTRATION
 #=================================================
 ynh_script_progression "Setting up systemd service..."
 
+ynh_hide_warnings yunohost firewall allow TCP "$port"
+
 ynh_config_add_systemd
 
 yunohost service add "$app" \
-    --description "MTProto proxy for Telegram" \
-    --needs_exposed_ports "$port" \
-    --log="/var/log/$app/mtg.log" 
+    --description="MTProto proxy for Telegram" \
+    --needs_exposed_ports="$port" \
+    --log="/var/log/$app/$app.log"
+
+ynh_config_add_logrotate
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemctl --action=enable
-ynh_systemctl --action=start
+ynh_systemctl --service="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT

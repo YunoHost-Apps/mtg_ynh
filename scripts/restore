@@ -12,26 +12,36 @@ source /usr/share/yunohost/helpers
 ynh_script_progression "Restoring the app main directory..."
 
 ynh_restore "$install_dir"
+chown -R "$app:$app" "$install_dir"
 
 #=================================================
 # RESTORE SYSTEM CONFIGURATIONS
 #=================================================
 ynh_script_progression "Restoring system configurations related to $app..."
 
-ynh_config_add_systemd
+ynh_hide_warnings yunohost firewall allow TCP "$port"
+
+ynh_restore "/etc/systemd/system/$app.service"
+systemctl enable "$app.service" --quiet
+systemctl daemon-reload
 
 yunohost service add "$app" \
-    --description "MTProto proxy for Telegram" \
-    --needs_exposed_ports "$port" \
-    --log="/var/log/$app/mtg.log" 
+    --description="MTProto proxy for Telegram" \
+    --needs_exposed_ports="$port" \
+    --log="/var/log/$app/$app.log"
+
+ynh_restore "/etc/logrotate.d/$app"
+
+mkdir -p "/var/log/$app"
+ynh_restore "/var/log/$app/"
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
 # RELOAD NGINX AND PHP-FPM OR THE APP SERVICE
 #=================================================
-ynh_script_progression "Reloading $app's service..."
+ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemctl --action=enable
-ynh_systemctl --action=start
+ynh_systemctl --service="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT

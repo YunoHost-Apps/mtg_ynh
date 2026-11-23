@@ -8,4 +8,6 @@ test_format = 1.0
     args.dns = "1.1.1.1"
     args.prometheus = false
 
-    exclude = ["install.root", "install.subdir", "install.multi", "install.multi", "change_url"]
+    exclude = ["install.root", "install.subdir", "install.multi", "change_url"]
+
+    test_upgrade_from.21c572f0ec41cda92f02727ff932bbc55e429498.name = "Upgrade from 2.2.8~ynh1"
