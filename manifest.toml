@@ -6,7 +6,7 @@ name = "mtg"
 description.en = "Highly-opinionated MTPROTO proxy for Telegram"
 description.fr = "Proxy MTProto pour Telegram"
 
-version = "2.2.8~ynh1"
+version = "2.3.0~ynh1"
 
 maintainers = ["mrpsycho"]
 
@@ -60,14 +60,20 @@ disk = "50M"
 
     [resources.sources.main]
     # x86_64 / amd64
-    amd64.url = "https://github.com/9seconds/mtg/releases/download/v2.2.8/mtg-2.2.8-linux-amd64.tar.gz"
-    amd64.sha256 = "7ef19d079d85f4e00d4f8334ec1f3f3c8718e3d0ed1f3109ea9a8673138a2102"
+    amd64.url = "https://github.com/9seconds/mtg/releases/download/v2.3.0/mtg-2.3.0-linux-amd64.tar.gz"
+    amd64.sha256 = "11c038ea5eeebd5d49148048975c24f7b0c4fa4c1cf4f15a2410203e2da01812"
     # i386
-    i386.url = "https://github.com/9seconds/mtg/releases/download/v2.2.8/mtg-2.2.8-linux-386.tar.gz"
-    i386.sha256 = "99c2f177730271b88d8f2404b2cf27d5ee997685f6d9118d4c8cac9c5aaedf50"
+    i386.url = "https://github.com/9seconds/mtg/releases/download/v2.3.0/mtg-2.3.0-linux-386.tar.gz"
+    i386.sha256 = "4f8fffa94bf4cad75a6b059d4a543efda62fc77921f4321186b6795269f3fe8e"
     # arm64 / aarch64
-    arm64.url = "https://github.com/9seconds/mtg/releases/download/v2.2.8/mtg-2.2.8-linux-arm64.tar.gz"
-    arm64.sha256 = "562a94dd4cafcb8f179b76cfeafb76da12747c8e230bc76235bf8746cc189644"
+    arm64.url = "https://github.com/9seconds/mtg/releases/download/v2.3.0/mtg-2.3.0-linux-arm64.tar.gz"
+    arm64.sha256 = "86e0fc6f50bfb453b7a6e8b91497c6661a7d64a3f607828e0e42f534d795ac5a"
     # armhf / armv7
-    armhf.url = "https://github.com/9seconds/mtg/releases/download/v2.2.8/mtg-2.2.8-linux-armv7.tar.gz"
-    armhf.sha256 = "494ee3794ed00201e5333b478236ce2f434b33f2d3445f227debe9fc386bbef0"
+    armhf.url = "https://github.com/9seconds/mtg/releases/download/v2.3.0/mtg-2.3.0-linux-armv7.tar.gz"
+    armhf.sha256 = "4be262a4099807700f1a62b11d993c096a6011a510975d82ea86ca72e49ccb89"
+
+    autoupdate.strategy = "latest_github_release"
+    autoupdate.asset.amd64 = '^mtg-.*-linux-amd64\.tar\.gz$'
+    autoupdate.asset.i386 = '^mtg-.*-linux-386\.tar\.gz$'
+    autoupdate.asset.arm64 = '^mtg-.*-linux-arm64\.tar\.gz$'
+    autoupdate.asset.armhf = '^mtg-.*-linux-armv7\.tar\.gz$'

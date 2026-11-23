@@ -13,7 +13,15 @@ conf_dir=$install_dir/conf
 #=================================================
 ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_systemctl --action=stop
+ynh_systemctl --service="$app" --action="stop"
+
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression "Ensuring downward compatibility..."
+
+ynh_app_setting_set_default --key=dns --value="1.1.1.1"
+ynh_app_setting_set_default --key=prometheus --value="0"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -22,14 +30,17 @@ ynh_script_progression "Upgrading source files..."
 
 # $install_dir is set automatically from [resources.install_dir]
 ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="conf"
-  
+
 chmod +x "$install_dir/mtg"
-chown "$app:" "$install_dir/mtg"
+chown "$app:$app" "$install_dir/mtg"
 
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
 ynh_script_progression "Updating $app's configuration files..."
+
+mkdir -p "$conf_dir"
+chown "$app:$app" "$conf_dir"
 
 mtg_secret=$(ynh_app_setting_get --key=mtg_secret)
 if [ -z "$mtg_secret" ] && [ -f "$conf_dir/mtg.toml" ]; then
@@ -39,28 +50,35 @@ fi
 [ "$prometheus" = "1" ] && prom_enabled="true" || prom_enabled="false"
 
 ynh_config_add --template="mtg.toml" --destination="$conf_dir/mtg.toml"
+chmod 400 "$conf_dir/mtg.toml"
+chown "$app:$app" "$conf_dir/mtg.toml"
 
 # Ensure log directory exists
-mkdir -p /var/log/$app
-chown $app: /var/log/$app
+mkdir -p "/var/log/$app"
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
 # UPDATE SYSTEMD CONFIG
 #=================================================
+ynh_script_progression "Updating system configurations related to $app..."
+
+ynh_hide_warnings yunohost firewall allow TCP "$port"
 
 ynh_config_add_systemd
 
 yunohost service add "$app" \
-    --description "MTProto proxy for Telegram" \
-    --needs_exposed_ports "$port" \
-    --log="/var/log/$app/mtg.log"
+    --description="MTProto proxy for Telegram" \
+    --needs_exposed_ports="$port" \
+    --log="/var/log/$app/$app.log"
+
+ynh_config_add_logrotate
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemctl --action=start
+ynh_systemctl --service="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT
